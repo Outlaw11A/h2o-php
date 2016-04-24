@@ -288,3 +288,96 @@ class H2o_Memcache_Cache {
     	return memcache_flush( $this->object );
     }
 }
+
+
+/**
+ * Class H2o_Redis_Cache
+ */
+class H2o_Redis_Cache
+{
+    /**
+     * @var int|mixed
+     */
+    var $ttl = 3600;
+
+    /**
+     * @var mixed|string
+     */
+    var $prefix = 'h2o_';
+
+    /**
+     * @var mixed|string
+     */
+    var $host = '127.0.0.1';
+
+    /**
+     * @var int|mixed
+     */
+    var $port = 6379;
+
+    /**
+     * @var Redis
+     */
+    var $object;
+
+    /**
+     * H2o_Redis_Cache constructor.
+     * @param $scope
+     * @param array $options
+     */
+    function __construct($scope, $options = [])
+    {
+        if (isset($options['cache_ttl'])) {
+            $this->ttl = $options['cache_ttl'];
+        }
+        if (isset($options['cache_prefix'])) {
+            $this->prefix = $options['cache_prefix'];
+        }
+
+        if (isset($options['host'])) {
+            $this->host = $options['host'];
+        }
+
+        if (isset($options['port'])) {
+            $this->port = $options['port'];
+        }
+
+        $this->object = new \Redis();
+        $this->object->connect($this->host, $this->port);
+    }
+
+    /**
+     * Get an object
+     *
+     * Note: using unserialize on a bool - false, returns false
+     *
+     * @param $filename
+     * @return mixed
+     */
+    function read($filename)
+    {
+        return unserialize($this->object->get($this->prefix . $filename));
+    }
+
+    /**
+     * Set an object
+     *
+     * @param $filename
+     * @param $content
+     * @return bool
+     */
+    function write($filename, $content)
+    {
+        return $this->object->set($this->prefix . $filename, serialize($content), $this->ttl);
+    }
+
+    /**
+     * Flush all objects
+     *
+     * @return int
+     */
+    function flush()
+    {
+        return $this->object->del($this->object->keys($this->prefix . '*'));
+    }
+}
