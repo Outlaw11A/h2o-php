@@ -29,10 +29,11 @@ class H2o {
 
     static function getOptions($options = array()) {
         return array_merge(array(
-            'loader'            =>       'file',
-            'cache'             =>      'file',     // file | apc | memcache
+            'loader'            =>      'file',
+            'cache'             =>      'file',   // file | apc | memcache | redis
             'cache_prefix'      =>      'h2o_',
-            'cache_ttl'         =>      3600,     // file | apc | memcache
+            'cache_ttl'         =>      3600,     // file | apc | memcache | redis
+            'cache_encoding_method' =>  'php',    // php | json
             'searchpath'        =>      false,
             'autoescape'        =>      true,
 

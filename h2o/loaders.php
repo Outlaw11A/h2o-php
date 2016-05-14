@@ -316,6 +316,11 @@ class H2o_Redis_Cache
     var $port = 6379;
 
     /**
+     * @var string
+     */
+    var $encoding_method = 'php';
+
+    /**
      * @var Redis
      */
     var $object;
@@ -342,6 +347,10 @@ class H2o_Redis_Cache
             $this->port = $options['port'];
         }
 
+        if (isset($options['cache_encoding_method'])) {
+            $this->encoding_method = $options['cache_encoding_method'];
+        }
+
         $this->object = new \Redis();
         $this->object->connect($this->host, $this->port);
     }
@@ -356,7 +365,7 @@ class H2o_Redis_Cache
      */
     function read($filename)
     {
-        return unserialize($this->object->get($this->prefix . $filename));
+        return $this->unserialize($this->object->get($this->prefix . $filename));
     }
 
     /**
@@ -368,7 +377,7 @@ class H2o_Redis_Cache
      */
     function write($filename, $content)
     {
-        return $this->object->set($this->prefix . $filename, serialize($content), $this->ttl);
+        return $this->object->set($this->prefix . $filename, $this->serialize($content), $this->ttl);
     }
 
     /**
@@ -379,5 +388,39 @@ class H2o_Redis_Cache
     function flush()
     {
         return $this->object->del($this->object->keys($this->prefix . '*'));
+    }
+
+    /**
+     * Serialize a piece of data
+     *
+     * @param $data
+     * @return mixed|string
+     */
+    private function serialize($data)
+    {
+        switch ($this->encoding_method) {
+            case 'json':
+                return json_decode($data);
+            case 'php':
+            default:
+                return serialize($data);
+        }
+    }
+
+    /**
+     * Unserialize a piece of data
+     *
+     * @param $data
+     * @return mixed
+     */
+    private function unserialize($data)
+    {
+        switch ($this->encoding_method) {
+            case 'json':
+                return json_decode($data);
+            case 'php':
+            default:
+                return unserialize($data);
+        }
     }
 }
