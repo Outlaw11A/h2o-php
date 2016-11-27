@@ -327,10 +327,9 @@ class H2o_Redis_Cache
 
     /**
      * H2o_Redis_Cache constructor.
-     * @param $scope
      * @param array $options
      */
-    function __construct($scope, $options = [])
+    function __construct($options = [])
     {
         if (isset($options['cache_ttl'])) {
             $this->ttl = $options['cache_ttl'];
