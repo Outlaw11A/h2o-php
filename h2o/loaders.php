@@ -316,6 +316,11 @@ class H2o_Redis_Cache
     var $port = 6379;
 
     /**
+     * @var int
+     */
+    var $db = 0;
+
+    /**
      * @var string
      */
     var $encoding_method = 'php';
@@ -346,12 +351,17 @@ class H2o_Redis_Cache
             $this->port = $options['port'];
         }
 
+        if (isset($options['db'])) {
+            $this->db = $options['db'];
+        }
+
         if (isset($options['cache_encoding_method'])) {
             $this->encoding_method = $options['cache_encoding_method'];
         }
 
         $this->object = new \Redis();
         $this->object->connect($this->host, $this->port);
+        $this->object->select($this->db);
     }
 
     /**
