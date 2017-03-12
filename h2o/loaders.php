@@ -306,19 +306,15 @@ class H2o_Redis_Cache
     var $prefix = 'h2o_';
 
     /**
-     * @var mixed|string
+     * @var array|mixed
      */
-    var $host = '127.0.0.1';
-
-    /**
-     * @var int|mixed
-     */
-    var $port = 6379;
-
-    /**
-     * @var int
-     */
-    var $db = 0;
+    var $redis = [
+        'mode' => 'standalone',
+        'host' => '127.0.0.1',
+        'port' => 6379,
+        'db' => 0,
+        'service' => 'mymaster',
+    ];
 
     /**
      * @var string
@@ -326,7 +322,7 @@ class H2o_Redis_Cache
     var $encoding_method = 'php';
 
     /**
-     * @var Redis
+     * @var Predis\Client
      */
     var $object;
 
@@ -343,25 +339,28 @@ class H2o_Redis_Cache
             $this->prefix = $options['cache_prefix'];
         }
 
-        if (isset($options['host'])) {
-            $this->host = $options['host'];
-        }
-
-        if (isset($options['port'])) {
-            $this->port = $options['port'];
-        }
-
-        if (isset($options['db'])) {
-            $this->db = $options['db'];
+        if (isset($options['redis'])) {
+            $this->redis = $options['redis'];
         }
 
         if (isset($options['cache_encoding_method'])) {
             $this->encoding_method = $options['cache_encoding_method'];
         }
 
-        $this->object = new \Redis();
-        $this->object->connect($this->host, $this->port);
-        $this->object->select($this->db);
+        if ($this->redis['mode'] === 'sentinel') {
+            $redisParameters = ['tcp://' . $this->redis['host'] . ':' . $this->redis['port']];
+            $redisOptions = ['replication' => 'sentinel', 'service' => $this->redis['service']];
+        } else {
+            $redisParameters = [
+                'scheme' => 'tcp',
+                'host'   => $this->redis['host'],
+                'port'   => (int)$this->redis['port'],
+            ];
+            $redisOptions = null;
+        }
+
+        $this->object = new Predis\Client($redisParameters, $redisOptions);
+        $this->object->select((int)$this->redis['db']);
     }
 
     /**
