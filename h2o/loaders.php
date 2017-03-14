@@ -348,19 +348,21 @@ class H2o_Redis_Cache
         }
 
         if ($this->redis['mode'] === 'sentinel') {
-            $redisParameters = ['tcp://' . $this->redis['host'] . ':' . $this->redis['port']];
+            $redisParameters = [
+                'tcp://' . $this->redis['host'] . ':' . $this->redis['port'] . '&database=' . $this->redis['db']
+            ];
             $redisOptions = ['replication' => 'sentinel', 'service' => $this->redis['service']];
         } else {
             $redisParameters = [
                 'scheme' => 'tcp',
                 'host'   => $this->redis['host'],
                 'port'   => (int)$this->redis['port'],
+                'database' => (int)$this->redis['db'],
             ];
             $redisOptions = null;
         }
 
         $this->object = new Predis\Client($redisParameters, $redisOptions);
-        $this->object->select((int)$this->redis['db']);
     }
 
     /**
