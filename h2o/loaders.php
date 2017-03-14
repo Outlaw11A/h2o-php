@@ -373,7 +373,11 @@ class H2o_Redis_Cache
      */
     function read($filename)
     {
-        return $this->unserialize($this->object->get($this->prefix . $filename));
+        $result = $this->object->get($this->prefix . $filename);
+        if ($result !== false && strlen($result) > 0) {
+            return $this->unserialize($result);
+        }
+        return false;
     }
 
     /**
