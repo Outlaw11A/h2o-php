@@ -385,7 +385,7 @@ class H2o_Redis_Cache
      */
     function write($filename, $content)
     {
-        return $this->object->set($this->prefix . $filename, $this->serialize($content), $this->ttl);
+        return $this->object->setex($this->prefix . $filename, $this->ttl, $this->serialize($content));
     }
 
     /**
