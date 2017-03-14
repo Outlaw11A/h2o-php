@@ -366,18 +366,14 @@ class H2o_Redis_Cache
     /**
      * Get an object
      *
-     * Note: using unserialize on a bool - false, returns false
+     * Note: using unserialize on a bool - false or string - "", returns false
      *
      * @param $filename
      * @return mixed
      */
     function read($filename)
     {
-        $result = $this->object->get($this->prefix . $filename);
-        if ($result !== false && strlen($result) > 0) {
-            return $this->unserialize($result);
-        }
-        return false;
+        return $this->unserialize($this->object->get($this->prefix . $filename));
     }
 
     /**
