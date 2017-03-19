@@ -385,7 +385,7 @@ class H2o_Redis_Cache implements Serializable
         error_log('redis -> read');
         error_log($filename);
         $result = $this->object->get($this->prefix . $filename);
-        error_log($result);
+        error_log(base64_encode($result));
         return $this->decode($this->object->get($this->prefix . $filename));
     }
 
