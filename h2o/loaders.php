@@ -383,6 +383,9 @@ class H2o_Redis_Cache implements Serializable
     public function read($filename)
     {
         error_log('redis -> read');
+        error_log($filename);
+        $result = $this->object->get($this->prefix . $filename);
+        error_log($result);
         return $this->decode($this->object->get($this->prefix . $filename));
     }
 
