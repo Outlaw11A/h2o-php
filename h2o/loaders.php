@@ -385,7 +385,7 @@ class H2o_Redis_Cache implements Serializable
         error_log('redis -> read');
         error_log($filename);
         $result = $this->object->get($this->prefix . $filename);
-        error_log(base64_encode($result));
+        error_log($result);
         return $this->decode($this->object->get($this->prefix . $filename));
     }
 
@@ -424,11 +424,12 @@ class H2o_Redis_Cache implements Serializable
         error_log('redis -> encode');
         switch ($this->encoding_method) {
             case 'json':
-                return json_decode($data);
+                return $result = json_encode($data);
             case 'php':
             default:
-                return serialize($data);
+                $result = serialize($data);
         }
+        return base64_encode($result);
     }
 
     /**
@@ -440,11 +441,12 @@ class H2o_Redis_Cache implements Serializable
     private function decode($data)
     {
         error_log('redis -> decode');
+        $data = base64_decode($data);
         switch ($this->encoding_method) {
             case 'json':
                 return json_decode($data);
         }
-        return unserialize($data);
+        return base64_decode($data);
     }
 
     /**
