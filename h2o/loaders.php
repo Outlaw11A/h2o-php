@@ -332,6 +332,7 @@ class H2o_Redis_Cache implements Serializable
      */
     public function __construct($options = [])
     {
+        error_log('redis -> __construct');
         if (isset($options['cache_ttl'])) {
             $this->ttl = $options['cache_ttl'];
         }
@@ -381,6 +382,7 @@ class H2o_Redis_Cache implements Serializable
      */
     public function read($filename)
     {
+        error_log('redis -> read');
         return $this->decode($this->object->get($this->prefix . $filename));
     }
 
@@ -393,6 +395,7 @@ class H2o_Redis_Cache implements Serializable
      */
     public function write($filename, $content)
     {
+        error_log('redis -> write');
         return $this->object->setex($this->prefix . $filename, $this->ttl, $this->encode($content));
     }
 
@@ -403,6 +406,7 @@ class H2o_Redis_Cache implements Serializable
      */
     public function flush()
     {
+        error_log('redis -> flush');
         return $this->object->del($this->object->keys($this->prefix . '*'));
     }
 
@@ -414,6 +418,7 @@ class H2o_Redis_Cache implements Serializable
      */
     private function encode($data)
     {
+        error_log('redis -> encode');
         switch ($this->encoding_method) {
             case 'json':
                 return json_decode($data);
@@ -431,6 +436,7 @@ class H2o_Redis_Cache implements Serializable
      */
     private function decode($data)
     {
+        error_log('redis -> decode');
         switch ($this->encoding_method) {
             case 'json':
                 return json_decode($data);
@@ -446,6 +452,7 @@ class H2o_Redis_Cache implements Serializable
      */
     public function serialize()
     {
+        error_log('redis -> serialize');
         return null;
     }
 
@@ -460,5 +467,6 @@ class H2o_Redis_Cache implements Serializable
      */
     public function unserialize($serialized)
     {
+        error_log('redis -> unserialize');
     }
 }
