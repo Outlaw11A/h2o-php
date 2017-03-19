@@ -293,22 +293,22 @@ class H2o_Memcache_Cache {
 /**
  * Class H2o_Redis_Cache
  */
-class H2o_Redis_Cache
+class H2o_Redis_Cache implements Serializable
 {
     /**
      * @var int|mixed
      */
-    var $ttl = 3600;
+    private $ttl = 3600;
 
     /**
      * @var mixed|string
      */
-    var $prefix = 'h2o_';
+    private $prefix = 'h2o_';
 
     /**
      * @var array|mixed
      */
-    var $redis = [
+    private $redis = [
         'mode' => 'standalone',
         'host' => '127.0.0.1',
         'port' => 6379,
@@ -319,18 +319,18 @@ class H2o_Redis_Cache
     /**
      * @var string
      */
-    var $encoding_method = 'php';
+    private $encoding_method = 'php';
 
     /**
      * @var Predis\Client
      */
-    var $object;
+    private $object;
 
     /**
      * H2o_Redis_Cache constructor.
      * @param array $options
      */
-    function __construct($options = [])
+    public function __construct($options = [])
     {
         if (isset($options['cache_ttl'])) {
             $this->ttl = $options['cache_ttl'];
@@ -379,9 +379,9 @@ class H2o_Redis_Cache
      * @param $filename
      * @return mixed
      */
-    function read($filename)
+    public function read($filename)
     {
-        return $this->unserialize($this->object->get($this->prefix . $filename));
+        return $this->decode($this->object->get($this->prefix . $filename));
     }
 
     /**
@@ -391,9 +391,9 @@ class H2o_Redis_Cache
      * @param $content
      * @return bool
      */
-    function write($filename, $content)
+    public function write($filename, $content)
     {
-        return $this->object->setex($this->prefix . $filename, $this->ttl, $this->serialize($content));
+        return $this->object->setex($this->prefix . $filename, $this->ttl, $this->encode($content));
     }
 
     /**
@@ -401,7 +401,7 @@ class H2o_Redis_Cache
      *
      * @return int
      */
-    function flush()
+    public function flush()
     {
         return $this->object->del($this->object->keys($this->prefix . '*'));
     }
@@ -412,7 +412,7 @@ class H2o_Redis_Cache
      * @param $data
      * @return mixed|string
      */
-    private function serialize($data)
+    private function encode($data)
     {
         switch ($this->encoding_method) {
             case 'json':
@@ -429,14 +429,36 @@ class H2o_Redis_Cache
      * @param $data
      * @return mixed
      */
-    private function unserialize($data)
+    private function decode($data)
     {
         switch ($this->encoding_method) {
             case 'json':
                 return json_decode($data);
-            case 'php':
-            default:
-                return unserialize($data);
         }
+        return unserialize($data);
+    }
+
+    /**
+     * String representation of object
+     * @link http://php.net/manual/en/serializable.serialize.php
+     * @return string the string representation of the object or null
+     * @since 5.1.0
+     */
+    public function serialize()
+    {
+        return null;
+    }
+
+    /**
+     * Constructs the object
+     * @link http://php.net/manual/en/serializable.unserialize.php
+     * @param string $serialized <p>
+     * The string representation of the object.
+     * </p>
+     * @return void
+     * @since 5.1.0
+     */
+    public function unserialize($serialized)
+    {
     }
 }
