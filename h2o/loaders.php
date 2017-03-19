@@ -446,7 +446,7 @@ class H2o_Redis_Cache implements Serializable
             case 'json':
                 return json_decode($data);
         }
-        return base64_decode($data);
+        return unserialize($data);
     }
 
     /**
